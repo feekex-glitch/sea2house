@@ -11,7 +11,7 @@
             --blue: #a2d2ff;
             --soft-blue: #f0f7ff;
             --text-main: #555555;
-            --transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            --transition: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,6 +22,7 @@
             overflow-x: hidden;
         }
 
+        /* 인트로 화면 */
         #intro-screen {
             position: fixed; inset: 0; background: var(--white);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -33,9 +34,8 @@
         }
         .click-text { font-size: 0.75rem; color: var(--pink); letter-spacing: 4px; font-weight: 700; }
 
-        #main-ui {
-            display: none; opacity: 0; width: 100%; min-height: 100vh;
-        }
+        /* 메인 UI */
+        #main-ui { display: none; opacity: 0; width: 100%; min-height: 100vh; }
         nav {
             position: fixed; top: 0; width: 100%; height: 70px;
             display: flex; justify-content: center; align-items: center;
@@ -45,77 +45,91 @@
         .nav-btn {
             background: none; border: none; cursor: pointer;
             font-size: 0.85rem; font-weight: 700; color: #ccc;
-            letter-spacing: 2px; transition: var(--transition);
+            letter-spacing: 2px; transition: 0.3s;
         }
         .nav-btn.active { color: var(--blue); }
-        .nav-btn:hover { color: var(--pink); }
 
         section {
             display: none; width: 100%; padding-top: 100px; padding-bottom: 120px;
-            animation: fadeIn 0.5s ease;
-            flex-direction: column; align-items: center;
+            animation: fadeIn 0.5s ease; flex-direction: column; align-items: center;
         }
         section.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .profile-container { display: flex; gap: 30px; width: 90%; max-width: 950px; justify-content: center; }
-        .char-card {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 30px; background: var(--white); border-radius: 4px;
-            border: 1px solid var(--soft-blue); text-align: center;
-            transition: var(--transition);
+        /* 3D 카드 뒤집기 핵심 스타일 */
+        .profile-container { 
+            display: flex; gap: 40px; width: 90%; max-width: 1000px; justify-content: center; 
+            perspective: 2000px; 
         }
-        .char-card:hover { border-color: var(--pink); transform: translateY(-5px); }
+        
+        .card-wrapper {
+            flex: 1; height: 600px; /* 카드 높이 고정 */
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform var(--transition);
+            cursor: pointer;
+        }
+
+        .card-wrapper.flipped { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            width: 100%; height: 100%;
+            position: absolute; inset: 0;
+            backface-visibility: hidden;
+            border-radius: 8px; border: 1px solid var(--soft-blue);
+            background: var(--white);
+            display: flex; flex-direction: column; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .card-back { transform: rotateY(180deg); background: var(--soft-blue); }
+
+        /* 공통 요소 */
         .char-img { 
             width: 100%; aspect-ratio: 1; object-fit: cover; 
-            background: var(--soft-blue); border-radius: 2px; margin-bottom: 25px; 
+            border-radius: 4px; margin-bottom: 25px; 
         }
-        .char-name { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+        .char-name { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; }
         .darong .char-name { color: var(--pink); }
         .sihyun .char-name { color: var(--blue); }
-        .char-tag { font-size: 0.8rem; color: #bbb; margin-bottom: 20px; font-weight: 600; }
-        .char-quote { 
-            font-size: 0.85rem; line-height: 1.8; color: var(--text-main);
-            padding: 20px; background: var(--soft-blue); border-radius: 4px;
+        .char-tag { font-size: 0.85rem; color: #999; margin-bottom: 15px; font-weight: 600; display: block; }
+        
+        /* 뒷면 상세 레이아웃 */
+        .back-title { font-size: 0.8rem; letter-spacing: 3px; color: #bbb; margin-bottom: 15px; }
+        .back-char-img {
+            width: 100%; height: 220px; object-fit: cover;
+            border-radius: 4px; margin-bottom: 20px; border: 1px solid #fff;
+        }
+        .back-desc-box {
+            background: white; padding: 20px; border-radius: 6px;
+            font-size: 0.9rem; line-height: 1.7; color: #666;
+            text-align: left; word-break: keep-all; flex-grow: 1;
         }
 
-        .gallery-info { margin-bottom: 30px; text-align: center; width: 100%; }
-        .gallery-info p { font-size: 0.85rem; color: #999; }
-
-        .gallery-grid {
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 90%; 
-            max-width: 900px;
-        }
-        .grid-item {
-            aspect-ratio: 1; background: var(--soft-blue); cursor: pointer;
-            overflow: hidden; border-radius: 4px; transition: var(--transition);
-        }
-        .grid-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: 0.4s; }
-        .grid-item:hover img { transform: scale(1.05); opacity: 1; }
+        /* 갤러리/버튼 등 기존 스타일 */
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 90%; max-width: 900px; }
+        .grid-item { aspect-ratio: 1; background: var(--soft-blue); cursor: pointer; overflow: hidden; border-radius: 4px; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
+        .grid-item:hover img { transform: scale(1.05); }
 
         #modal {
             position: fixed; inset: 0; background: rgba(255, 255, 255, 0.98);
             display: none; z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
         }
-        #modal img { max-width: 85%; max-height: 75vh; border-radius: 4px; border: 1px solid var(--soft-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        #modal p { margin-top: 25px; font-size: 0.95rem; color: var(--text-main); font-weight: 400; text-align: center; width: 80%; line-height: 1.6; }
-        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 2.5rem; cursor: pointer; color: var(--blue); line-height: 1; }
+        #modal img { max-width: 85%; max-height: 75vh; border-radius: 4px; }
+        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 2.5rem; cursor: pointer; color: var(--blue); }
 
         .cta-box { position: fixed; bottom: 40px; width: 100%; display: flex; justify-content: center; z-index: 90; }
         .btn-entry {
             background: var(--blue); color: var(--white); border: none;
             padding: 14px 70px; font-size: 0.9rem; font-weight: 700;
-            letter-spacing: 3px; cursor: pointer; transition: var(--transition);
-            border-radius: 2px; box-shadow: 0 4px 15px rgba(162, 210, 255, 0.4);
+            letter-spacing: 3px; cursor: pointer; border-radius: 2px;
         }
-        .btn-entry:hover { background: var(--pink); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 175, 189, 0.4); }
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
+            .profile-container { flex-direction: column; align-items: center; }
+            .card-wrapper { width: 100%; max-width: 350px; height: 550px; }
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-container { flex-direction: column; }
         }
     </style>
 </head>
@@ -134,25 +148,45 @@
 
         <section id="p1" class="active">
             <div class="profile-container">
-                <div class="char-card darong">
-                    <img src="https://igx.kr/r/zt/1/19" class="char-img">
-                    <span class="char-tag">심리학과 | 여우 수인 | 소꿉친구</span>
-                    <h2 class="char-name">정다롱</h2>
-                    <p class="char-quote">"오늘도 너를 좋아해!"</p>
+                
+                <div class="card-wrapper darong" onclick="flipCard(this)">
+                    <div class="card-front">
+                        <img src="https://igx.kr/r/zt/1/19" class="char-img">
+                        <span class="char-tag">심리학과 | 여우 수인</span>
+                        <h2 class="char-name">정다롱</h2>
+                        <p style="color: #bbb; font-size: 0.8rem;">"오늘도 너를 좋아해!"</p>
+                    </div>
+                    <div class="card-back">
+                        <p class="back-title">CHARACTER PROFILE</p>
+                        <img src="https://igx.kr/r/zt/1/24" class="back-char-img">
+                        <div class="back-desc-box">
+                            <strong>정다롱 21세/ENFP/165cm 65kg</strong><br><br>
+                            어린시절부터 함께 한 소꿉 친구입니다. 커다란 리트리버처럼 보이고 싶은 그녀는 항상 쾌활한 웃음을 보입니다. 당신 앞에서만요.
+                        </div>
+                    </div>
                 </div>
-                <div class="char-card sihyun">
-                    <img src="https://igx.kr/r/zt/1/20" class="char-img">
-                    <span class="char-tag">회화과 | 늑대 수인 | 개인주의</span>
-                    <h2 class="char-name">권시현</h2>
-                    <p class="char-quote">"관계에 이름 붙이는 거, 하지말자."</p>
+
+                <div class="card-wrapper sihyun" onclick="flipCard(this)">
+                    <div class="card-front">
+                        <img src="https://igx.kr/r/zt/1/20" class="char-img">
+                        <span class="char-tag">회화과 | 늑대 수인</span>
+                        <h2 class="char-name">권시현</h2>
+                        <p style="color: #bbb; font-size: 0.8rem;">"관계에 이름 붙이는 거, 하지말자."</p>
+                    </div>
+                    <div class="card-back">
+                        <p class="back-title">CHARACTER PROFILE</p>
+                        <img src="https://igx.kr/r/zt/1/25" class="back-char-img">
+                        <div class="back-desc-box">
+                            <strong>권시현 25세/INTP/174cm 55kg</strong><br><br>
+                            사람과의 관계를 비효율적이라 여기는 철저한 개인주의자입니다. 당신을 밀어내려 애쓰지만, 본능적으로 당신의 체취와 시선에 예민하게 반응하고 있습니다.
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </section>
 
         <section id="p2">
-            <div class="gallery-info">
-                <p>본 편에 수록되지 않은 스핀오프 이미지들입니다.</p>
-            </div>
             <div class="gallery-grid">
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/22', '네, 원래는 더 캐주얼합니다.')"><img src="https://igx.kr/r/zt/1/22"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/4', '두 사람이 밴드가 된 세계선도 있을겁니다. 정다롱은 음치입니다.')"><img src="https://igx.kr/r/zt/1/4"></div>
@@ -161,16 +195,16 @@
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/16', '관심은 힘들어요.')"><img src="https://igx.kr/r/zt/1/16"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/14', '그녀가 종종 하울링을 한다는 소문은, 사실입니다.')"><img src="https://igx.kr/r/zt/1/14"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/13', '시내에 나간다고 빨간 자켓을 꺼냈군요.')"><img src="https://igx.kr/r/zt/1/13"></div>
-                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/11', '오늘의 추천메뉴는 ...')"><img src="https://igx.kr/r/zt/1/11"></div>
+                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/11', '오늘의 추천 메뉴.')"><img src="https://igx.kr/r/zt/1/11"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/10', '신도시에서는, 신도시의 법을 따라야합니다.')"><img src="https://igx.kr/r/zt/1/10"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/17', '잡아 먹지는 않습니다.')"><img src="https://igx.kr/r/zt/1/17"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/12', '내 걸 건드리면 잡아 먹습니다.')"><img src="https://igx.kr/r/zt/1/12"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/9', '대부분의 수인은 어린시절 따돌림을 당합니다. 하지만 다롱에게는 당신이 있었습니다.')"><img src="https://igx.kr/r/zt/1/9"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/8', '늑대와 고양이의 시간.')"><img src="https://igx.kr/r/zt/1/8"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/7', '늑대가 있다면 양도 있습니다.')"><img src="https://igx.kr/r/zt/1/7"></div>
-                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/6', '네, 그녀는 사실 이름도 정해지지 않았습니다.')"><img src="https://igx.kr/r/zt/1/6"></div>
+                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/6', '그녀(?)가 본편에 등장하는 날이 올까요?')"><img src="https://igx.kr/r/zt/1/6"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/3', '어울리긴 하지만, 실제로는 타지않습니다.')"><img src="https://igx.kr/r/zt/1/3"></div>
-                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/5', '저희 사이 좋아요~')"><img src="https://igx.kr/r/zt/1/5"></div>
+                <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/5', '우리 사이 좋아요.')"><img src="https://igx.kr/r/zt/1/5"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/2', '부거...부거를 주십시오.')"><img src="https://igx.kr/r/zt/1/2"></div>
                 <div class="grid-item" onclick="inspectImg('https://igx.kr/r/zt/1/1', '한복 데이트.')"><img src="https://igx.kr/r/zt/1/1"></div>
             </div>
@@ -184,7 +218,7 @@
     <div id="modal" onclick="this.style.display='none'">
         <span class="close-btn">&times;</span>
         <img id="m-img" src="">
-        <p id="m-txt"></p>
+        <p id="m-txt" style="margin-top: 20px; text-align: center; color: #555;"></p>
     </div>
 
     <script>
@@ -205,6 +239,11 @@
             document.getElementById(id).classList.add('active');
             e.target.classList.add('active');
             window.scrollTo(0, 0);
+            document.querySelectorAll('.card-wrapper').forEach(card => card.classList.remove('flipped'));
+        }
+
+        function flipCard(cardElement) {
+            cardElement.classList.toggle('flipped');
         }
 
         function inspectImg(src, txt) {
